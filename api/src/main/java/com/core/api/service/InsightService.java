@@ -21,10 +21,6 @@ public class InsightService {
     private final GitHubClient gitHubClient;
 
     public TemplateDto generatePullRequestTemplate(String owner, String repo, String baseHead) {
-        System.out.println("Testt");
-        String tmeplate = backendClient.getProjectInfo(owner, repo)
-                .template();
-        System.out.println("tmeplate = " + tmeplate);
         return extractTemplateContent(
                 chatGptClient.makePullRequestTemplate(
                         ChatGptDto.from(
@@ -37,7 +33,6 @@ public class InsightService {
     }
 
     private List<CompareBranchResponseDto> fetchBranchComparison(String owner, String repo, String baseHead) {
-        System.out.println("tttt");
         return CompareBranchResponseDto.from(
                 gitHubClient.compareBranchHead(owner, repo, baseHead)
         );
