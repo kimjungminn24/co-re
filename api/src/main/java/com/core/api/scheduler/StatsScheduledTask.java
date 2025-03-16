@@ -1,6 +1,5 @@
 package com.core.api.scheduler;
 
-import com.core.api.data.dto.DayDto;
 import com.core.api.data.dto.StatsDto;
 import com.core.api.data.entity.PullRequest;
 import com.core.api.data.entity.RepoInfo;
@@ -8,15 +7,17 @@ import com.core.api.data.entity.Stats;
 import com.core.api.data.repository.PullRequestRepository;
 import com.core.api.data.repository.RepoInfoRepository;
 import com.core.api.data.repository.StatsRepository;
-import com.core.api.data.repository.VersionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class StatsScheduledTask {
 
 
@@ -36,12 +38,24 @@ public class StatsScheduledTask {
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     @SchedulerLock(name = "scheduler_stats_task")
+    @Retryable(
+            value = {Exception.class},
+            maxAttempts = 2,
+            backoff = @Backoff(delay = 5000)
+    )
     public void dailyStatsForAllRepositories() {
+        log.info("[통계 집계 시작]");
         List<RepoInfo> repositories = repoInfoRepository.findAll();
+            for (RepoInfo repository : repositories) {
+                dailyStats(repository.getOwner(), repository.getName());
+            }
 
-        for (RepoInfo repository : repositories) {
-            dailyStats(repository.getOwner(), repository.getName());
-        }
+        log.info("[통계 집계 끝]");
+    }
+
+    @Recover
+    public void recover(Exception e) {
+        log.error("[통계 집계 실패] 최대 재시도(2회) 후에도 실패 : {}",  e.getMessage());
     }
 
     public void  dailyStats(String owner, String repo) {
