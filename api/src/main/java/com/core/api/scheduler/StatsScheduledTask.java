@@ -80,12 +80,12 @@ public class StatsScheduledTask {
         double reviewGrowthRate = calculateGrowthRate(currentWeekReview, lastWeekReview);
 
         int currentWeekHotfix = countItemsWithinPeriod(
-                pullRequests.stream()
+                pullRequests.parallelStream()
                         .filter(PullRequest::getAfterReview)
                         .toList(),
                 PullRequest::getDeadline, startOfThisWeek, startOfThisWeek.plusWeeks(1));
         int lastWeekHotfix = countItemsWithinPeriod(
-                pullRequests.stream()
+                pullRequests.parallelStream()
                         .filter(PullRequest::getAfterReview)
                         .toList(),
                 PullRequest::getDeadline, startOfLastWeek, startOfThisWeek);
@@ -123,13 +123,13 @@ public class StatsScheduledTask {
     }
 
     private <T> int countItemsWithinPeriod(List<T> items, Function<T, LocalDateTime> dateExtractor, LocalDateTime start, LocalDateTime end) {
-        return (int) items.stream()
+        return (int) items.parallelStream()
                 .filter(item -> isWithinPeriod(dateExtractor.apply(item), start, end))
                 .count();
     }
 
     private int countCommitsWithinPeriod(List<PullRequest> pullRequests, LocalDateTime start, LocalDateTime end) {
-        return pullRequests.stream()
+        return pullRequests.parallelStream()
                 .flatMap(pr -> pr.getCommits()
                         .stream())
                 .filter(commit -> isWithinPeriod(commit.getCreatedDate(), start, end))
@@ -138,11 +138,11 @@ public class StatsScheduledTask {
     }
 
     private int countReviewsWithinPeriod(List<PullRequest> pullRequests, LocalDateTime start, LocalDateTime end) {
-        return pullRequests.stream()
+        return pullRequests.parallelStream()
                 .flatMap(pr -> pr.getReviewers()
-                        .stream())
+                        .parallelStream())
                 .flatMap(reviewer -> reviewer.getReviews()
-                        .stream())
+                        .parallelStream())
                 .filter(review -> isWithinPeriod(review.getCreatedDate(), start, end))
                 .toList()
                 .size();
