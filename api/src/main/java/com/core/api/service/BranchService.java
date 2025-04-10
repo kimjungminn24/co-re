@@ -1,6 +1,7 @@
 package com.core.api.service;
 
 
+import com.core.api.client.GitClient;
 import com.core.api.client.GitHubClient;
 import com.core.api.data.dto.ChangeDto;
 import com.core.api.data.dto.FileDto;
@@ -23,16 +24,10 @@ public class BranchService {
 
     private final GitHubClient gitHubClient;
 
+    private final GitClient gitClient;
+
     public List<BranchResponseDto> getBranches(String owner, String repo) {
-        return gitHubClient.getBranches(owner, repo)
-                .stream()
-                .map(branch -> BranchResponseDto.from(
-                        (String) branch.get("name"),
-                        CommitServerDto.fromApiResponse(
-                                gitHubClient.getCommit(owner, repo, (String) ((Map<?, ?>) branch.get("commit")).get("sha"))
-                        )
-                ))
-                .toList();
+        return gitClient.getBranches(owner,repo);
     }
 
     public List<CompareBranchResponseDto> compareBranchHead(String owner, String repo, String baseHead) {
