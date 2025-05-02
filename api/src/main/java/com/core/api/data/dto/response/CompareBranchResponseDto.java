@@ -7,24 +7,8 @@ import java.util.Map;
 public record CompareBranchResponseDto(
         String message,
         String writerName,
-        String date
+        String date,
+        String direction
 ) {
-    public static List<CompareBranchResponseDto> from(Map<String, Object> map) {
 
-        ArrayList<?> commits = (ArrayList<?>) map.get("commits");
-
-        return commits.stream()
-                .map(commitObj -> {
-                    Map<?, ?> commitEntry = (Map<?, ?>) commitObj;
-                    Map<?, ?> commitDetails = (Map<?, ?>) commitEntry.get("commit");
-                    Map<?, ?> author = (Map<?, ?>) commitDetails.get("author");
-
-                    return new CompareBranchResponseDto(
-                            (String) commitDetails.get("message"),
-                            (String) author.get("name"),
-                            (String) author.get("date")
-                    );
-                })
-                .toList();
-    }
 }
