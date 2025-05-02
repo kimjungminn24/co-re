@@ -29,10 +29,8 @@ public class BranchService {
     public List<BranchResponseDto> getBranches(String owner, String repo) {
         return gitClient.getBranches(owner,repo);
     }
-
-    public List<CompareBranchResponseDto> compareBranchHead(String owner, String repo, String baseHead) {
-        Map<String, Object> map = gitHubClient.compareBranchHead(owner, repo, baseHead);
-        return CompareBranchResponseDto.from(map);
+    public List<CompareBranchResponseDto> compareBranchHead(String owner, String repo, String base,String head) {
+        return  gitClient.compareBranchHead(owner, repo, base,head);
     }
 
     public CommitServerDto getCommit(String owner, String repo, String sha) {
