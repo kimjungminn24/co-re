@@ -2,7 +2,7 @@ package com.core.api.service;
 
 import com.core.api.client.BackendClient;
 import com.core.api.client.ChatGptClient;
-import com.core.api.client.GitHubClient;
+import com.core.api.client.GitClient;
 import com.core.api.data.dto.TemplateDto;
 import com.core.api.data.dto.chatgpt.ChatGptDto;
 import com.core.api.data.dto.response.CompareBranchResponseDto;
@@ -18,24 +18,22 @@ public class InsightService {
 
     private final ChatGptClient chatGptClient;
     private final BackendClient backendClient;
-    private final GitHubClient gitHubClient;
+    private final GitClient gitClient;
 
-    public TemplateDto generatePullRequestTemplate(String owner, String repo, String baseHead) {
+    public TemplateDto generatePullRequestTemplate(String owner, String repo, String base, String head) {
         return extractTemplateContent(
                 chatGptClient.makePullRequestTemplate(
                         ChatGptDto.from(
                                 backendClient.getProjectInfo(owner, repo)
                                         .template(),
-                                fetchBranchComparison(owner, repo, baseHead)
+                                fetchBranchComparison(owner, repo, base, head)
                         )
                 )
         );
     }
 
-    private List<CompareBranchResponseDto> fetchBranchComparison(String owner, String repo, String baseHead) {
-        return CompareBranchResponseDto.from(
-                gitHubClient.compareBranchHead(owner, repo, baseHead)
-        );
+    private List<CompareBranchResponseDto> fetchBranchComparison(String owner, String repo, String base, String head) {
+        return gitClient.compareBranchHead(owner, repo, base, head);
     }
 
     private TemplateDto extractTemplateContent(Map<String, Object> response) {

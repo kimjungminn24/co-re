@@ -17,8 +17,13 @@ public class InsightController {
     private final InsightService insightService;
 
     @GetMapping("/{owner}/{repo}/{baseHead}")
-    public ResponseEntity<TemplateDto> makePullRequestTemplate(@PathVariable String owner, @PathVariable String repo, @PathVariable String baseHead) {
-        TemplateDto template = insightService.generatePullRequestTemplate(owner, repo, baseHead);
+    public ResponseEntity<TemplateDto> makePullRequestTemplate(
+            @PathVariable String owner,
+            @PathVariable String repo,
+            @PathVariable String base,
+            @PathVariable String head
+    ) {
+        TemplateDto template = insightService.generatePullRequestTemplate(owner, repo, base, head);
         return ResponseEntity.ok(template);
     }
 }
