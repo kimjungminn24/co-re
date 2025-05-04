@@ -1,7 +1,7 @@
 package com.core.api.controller;
 
 
-import com.core.api.data.dto.ChangeDto;
+import com.core.api.data.dto.FileDto;
 import com.core.api.data.dto.response.BranchResponseDto;
 import com.core.api.data.dto.response.CompareBranchResponseDto;
 import com.core.api.service.BranchService;
@@ -22,20 +22,33 @@ public class BranchController {
     private final BranchService branchService;
 
     @GetMapping("/{owner}/{repo}")
-    public ResponseEntity<List<BranchResponseDto>> getBranches(@PathVariable String owner, @PathVariable String repo) {
+    public ResponseEntity<List<BranchResponseDto>> getBranches(
+            @PathVariable String owner,
+            @PathVariable String repo
+    ) {
         List<BranchResponseDto> branchList = branchService.getBranches(owner, repo);
         return ResponseEntity.ok(branchList);
     }
 
-    @GetMapping("/{owner}/{repo}/{baseHead}")
-    public ResponseEntity<List<CompareBranchResponseDto>> compareBranchHead(@PathVariable String owner, @PathVariable String repo, @PathVariable String baseHead) {
-        List<CompareBranchResponseDto> branchList = branchService.compareBranchHead(owner, repo, baseHead);
+    @GetMapping("/{owner}/{repo}/{base}/{head}")
+    public ResponseEntity<List<CompareBranchResponseDto>> compareBranchHead(
+            @PathVariable String owner,
+            @PathVariable String repo,
+            @PathVariable String base,
+            @PathVariable String head
+    ) {
+        List<CompareBranchResponseDto> branchList = branchService.compareBranchHead(owner, repo, base, head);
         return ResponseEntity.ok(branchList);
     }
 
-    @GetMapping("/{owner}/{repo}/{baseHead}/files")
-    public ResponseEntity<List<ChangeDto>> getChangeFiles(@PathVariable String owner, @PathVariable String repo, @PathVariable String baseHead) {
-        List<ChangeDto> changeFiles = branchService.getChangeFiles(owner, repo, baseHead);
+    @GetMapping("/{owner}/{repo}/{base}/{head}/file")
+    public ResponseEntity<List<FileDto>> getChangeFiles(
+            @PathVariable String owner,
+            @PathVariable String repo,
+            @PathVariable String base,
+            @PathVariable String head
+    ) {
+        List<FileDto> changeFiles = branchService.getChangeFiles(owner, repo, base, head);
         return ResponseEntity.ok(changeFiles);
     }
 }
